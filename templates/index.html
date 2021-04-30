@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Quote
+{% endblock %}
+
+{% block main %}
+    {% if alert %}
+        <div class="alert alert-success" role="alert">
+            {{ alert }}
+        </div>
+    {% endif %}
+
+    <table class="styled_table">
+        <thead>        
+            <tr>
+                <th>Symbol</th>
+                <th>Name</th>
+                <th>Shares</th>
+                <th>Price</th>
+                <th>TOTAL</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for row in data %}
+            <tr">
+                <td>{{ row[2] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[4] }}</td>
+                <td>{{ row[3] }}</td>
+                <td>{{ row[5] }}</td>
+            </tr>
+            {% endfor %}
+
+            <!-- Display the remaining cash -->
+            <tr>
+                <td>CASH</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>{{ balance }}</td>
+            </tr>
+        </tbody>
+
+        <!-- Display the total value -->
+        <div>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>{{ net_worth }}</td>
+            </tr>
+        </div>
+    </table>
+
+{% endblock %}
