@@ -135,7 +135,7 @@ def buy():
             total = price * count
             
             # get the balance of the current user
-            users.execute("SELECT * FROM users WHERE id=1")
+            users.execute("SELECT * FROM users WHERE id=?", (session["user_id"],))
             data = users.fetchall()
             balance = data[0][USERS_CASH]
 
