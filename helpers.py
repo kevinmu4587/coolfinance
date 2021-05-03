@@ -41,11 +41,12 @@ def lookup(symbol):
     # Contact API
     try:
         api_key = os.environ.get("API_KEY")
+        # API KEY IS pk_2bb7cf03d37949a39b284e2c1ca08bc7
         # url = f"https://cloud.iexapis.com/stable/stock/{urllib.parse.quote_plus(symbol)}/quote?token={api_key}"
-        url = "https://cloud.iexapis.com/stable/stock/" + symbol + "/quote?token=pk_2bb7cf03d37949a39b284e2c1ca08bc7"
-        print(url)
+        url = "https://cloud.iexapis.com/stable/stock/" + symbol + "/quote?token=" + api_key
+        # print(url)
         response = requests.get(url)
-        print(response)
+        # print(response)
         
         response.raise_for_status()
     except requests.RequestException:

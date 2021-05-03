@@ -10,6 +10,35 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from helpers import apology, login_required, lookup, usd, usd_to_float, current_time
 
+# constants to reference columns of the table
+# users table:
+# CREATE TABLE IF NOT EXISTS 'users' ('id' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 'username' TEXT NOT NULL, 'hash' TEXT NOT NULL, 
+# 'cash' NUMERIC NOT NULL DEFAULT 10000.00 );
+# CREATE UNIQUE INDEX 'username' ON "users" ("username");
+USERS_ID = 0
+USERS_USERNAME = 1
+USERS_HASH = 2
+USERS_CASH = 3
+
+# active table
+# CREATE TABLE IF NOT EXISTS 'active' ('user_id' INTEGER, name TEXT, 
+# symbol TEXT, price NUMERIC, count INTEGER, total NUMERIC);
+ACTIVE_USERID = 0
+ACTIVE_NAME = 1
+ACTIVE_SYMBOL = 2
+ACTIVE_PRICE = 3
+ACTIVE_COUNT = 4
+ACTIVE_TOTAL = 5
+
+# transactions table
+# CREATE TABLE IF NOT EXISTS 'transactions' ('user_id' INTEGER, symbol TEXT, 
+# count INTEGER, price NUMERIC, timestamp TEXT);
+TRSC_USERID = 0
+TRSC_SYMBOL = 1
+TRSC_COUNT = 2
+TRSC_PRICE = 3
+TRSC_TIMESTAMP = 4
+
 # Configure application
 app = Flask(__name__)
 
@@ -40,10 +69,6 @@ Session(app)
 connection = sqlite3.connect('finance.db', check_same_thread=False) 
 users = connection.cursor()
 
-# CREATE TABLE IF NOT EXISTS 'users' ('id' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 'username' TEXT NOT NULL, 'hash' TEXT NOT NULL, 
-# 'cash' NUMERIC NOT NULL DEFAULT 10000.00 );
-# CREATE UNIQUE INDEX 'username' ON "users" ("username");
-
 # sqlite database to store transactions
 connect = sqlite3.connect("transactions.db", check_same_thread=False)
 trsc = connect.cursor()
@@ -71,8 +96,8 @@ def index():
     net_worth = 0
     # update price and total for each purchased item
     for row in data:
-        symbol = row[2]
-        count = row[4]
+        symbol = row[ACTIVE_SYMBOL]
+        count = row[ACTIVE_COUNT]
         result = lookup(symbol)
         price = result["price"]
         total = price * int(count)
@@ -81,14 +106,15 @@ def index():
 
     users.execute("SELECT * FROM users WHERE id=?", (session["user_id"],))
     user_info = users.fetchall()
-    balance = user_info[0][3]
+    balance = user_info[0][USERS_CASH]
     net_worth += balance
 
     # display alerts
     alert = session["alert"]
     session["alert"] = None
 
-    return render_template("index.html", data=data, balance=usd(balance), net_worth=usd(net_worth), alert=alert)
+    return render_template("index.html", data=data, balance=usd(balance), net_worth=usd(net_worth), alert=alert,
+    NAME=ACTIVE_NAME, SYMBOL=ACTIVE_SYMBOL, PRICE=ACTIVE_PRICE, COUNT=ACTIVE_COUNT, TOTAL=ACTIVE_TOTAL)
 
 @app.route("/buy", methods=["GET", "POST"])
 @login_required
@@ -111,7 +137,7 @@ def buy():
             # get the balance of the current user
             users.execute("SELECT * FROM users WHERE id=1")
             data = users.fetchall()
-            balance = data[0][3]
+            balance = data[0][USERS_CASH]
 
             if total > balance:
                 return apology("Insufficient funds!")
@@ -130,8 +156,8 @@ def buy():
             stocks = trsc.fetchall()
             if len(stocks) == 1:
                 # update the existing stock
-                existing = stocks[0][4]
-                old_total = stocks[0][5]
+                existing = stocks[0][ACTIVE_COUNT]
+                old_total = stocks[0][ACTIVE_TOTAL]
                 
                 count += int(existing)
                 dollar_old_total = usd_to_float(old_total) + total
@@ -178,11 +204,11 @@ def login():
         #                  username=request.form.get("username"))
 
         # Ensure username exists and password is correct
-        if len(rows) != 1 or not check_password_hash(rows[0][2], request.form.get("password")):
+        if len(rows) != 1 or not check_password_hash(rows[0][USERS_HASH], request.form.get("password")):
             return apology("invalid username and/or password", 403)
 
         # Remember which user has logged in
-        session["user_id"] = rows[0][0] 
+        session["user_id"] = rows[0][USERS_ID] 
 
         # Redirect user to home page
         session["alert"] = "Welcome!"
@@ -252,7 +278,7 @@ def register():
         (username, generate_password_hash(password), 10000.00,))
         users.execute("SELECT * FROM users WHERE username=?", (username,))
         rows = users.fetchall()
-        session["user_id"] = rows[0][0] 
+        session["user_id"] = rows[0][USERS_ID] 
         session["alert"] = "Welcome!"
         return redirect("/")
 
@@ -280,7 +306,7 @@ def sell():
             return apology("You do not own that stock.")
         
         # check if the user has enough shares to sell
-        total_owned = int(data[0][4])
+        total_owned = int(data[0][ACTIVE_COUNT])
         if count > total_owned:
             return apology("You don't have that many shares.")
 
@@ -297,14 +323,14 @@ def sell():
         # update the user's balance
         users.execute("SELECT * FROM users WHERE id=?", (user_id,))
         user = users.fetchall()
-        old_cash = user[0][3]
+        old_cash = user[0][USERS_CASH]
         users.execute("UPDATE users SET cash=? WHERE id=?", (old_cash + revenue, user_id,))
 
         # update the active table
         if count == total_owned:
             trsc.execute("DELETE FROM active WHERE symbol=?", (symbol,))
         else:
-            old_count = data[0][4]
+            old_count = data[0][ACTIVE_COUNT]
             trsc.execute("UPDATE active SET count=? WHERE user_id=?", (old_count - count, user_id,))
         session["alert"] = "Sold successfully!"
         return redirect("/")

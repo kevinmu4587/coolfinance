@@ -25,11 +25,11 @@
         <tbody>
             {% for row in data %}
             <tr">
-                <td>{{ row[2] }}</td>
-                <td>{{ row[1] }}</td>
-                <td>{{ row[4] }}</td>
-                <td>{{ row[3] }}</td>
-                <td>{{ row[5] }}</td>
+                <td>{{ row[ SYMBOL ] }}</td>
+                <td>{{ row[ NAME ] }}</td>
+                <td>{{ row[ COUNT  ] }}</td>
+                <td>{{ row[ PRICE ] }}</td>
+                <td>{{ row[ TOTAL ] }}</td>
             </tr>
             {% endfor %}
 
