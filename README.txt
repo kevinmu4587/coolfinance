@@ -1,4 +1,5 @@
-Welcome to coolfinance.
+Welcome to coolfinance! A website where you can simulate buying and selling stocks. Uses real-time stock information and saves your personal transaction history.
+
 
 How to run:
 
