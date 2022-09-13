@@ -1,5 +1,5 @@
 API.txt
-transactions.db
+*.db
 __pycache__/
 env/
 finance.db-journal
