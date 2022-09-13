@@ -1,0 +1,6 @@
+API.txt
+transactions.db
+__pycache__/
+env/
+finance.db-journal
+transactions.db-journal
