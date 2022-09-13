@@ -21,11 +21,11 @@ CoolFinance's backend was built using a SQLite database and Python. Flask was us
 
 ### Screenshots
 Home page to view the current portfolio:  
-<img src="home.jpg"  width=40% height=40%>
+<img src="home.jpg"  width=60% height=60%>
 
 Buy page:  
-<img src="buy.jpg"  width=40% height=40%>
+<img src="buy.jpg"  width=60% height=60%>
 
 
 History page to view personal transaction history:  
- <img src="history.jpg"  width=40% height=40%>
+ <img src="history.jpg"  width=60% height=60%>
